@@ -129,7 +129,7 @@ The possible values for **reg** on those functions are:<br>
 ```
  0: PCX - External view of PC
  1: AF
- 2: CC
+ 2: BC
  3: DE
  4: HL
  5: IX
@@ -164,6 +164,10 @@ Lua scripting is not supported on platforms other than Windows, Linux and MacOS.
 
 Some applications, like hi-tech C for example, will try to access user areas higher than 15 to verify if they are running on a different CP/M flavor than 2.2. This causes the generation of user areas with letters higher than F. This is an expected behavior and won't be "fixed".
 
+## Online contact/support
+
+https://discord.gg/7aQAGG - I have created this discord channel to be able to (eventually) meet people in real time and talk about RunCPM. Feel free to join.
+
 ## References
 
 https://weblambdazero.blogspot.com/2016/07/cpm-on-stick_16.html<br>
@@ -174,8 +178,11 @@ https://hackaday.com/2014/12/30/z80-cpm-and-fat-file-formats/<br>
 https://ubuntuforum-br.org/index.php?topic=120787.0 - in Portuguese<br>
 http://mrwrightteacher.net/retrochallenge2018/<br>
 https://learn.adafruit.com/z80-cpm-emulator-for-the-samd51-grand-central<br>
+https://forum.armbian.com/topic/8569-runcpm-on-armbian-cpm-weekend-fun/<br>
+https://blog.hackster.io/z80-cp-m-emulator-runs-on-adafruits-new-grand-central-dev-board-6a28ad73dfbc<br>
+https://ht-deko.com/arduino/runcpm.html - in Japanese<br>
 
-## Arduino compatible boards tested so far
+## RunCPM compatible boards tested so far
 
 https://store.arduino.cc/usa/arduino-due<br>
 https://www.pjrc.com/store/teensy35.html<br>
@@ -185,7 +192,10 @@ https://wiki.wemos.cc/products:lolin32:lolin32_pro - LED on pin 5 (inverted)<br>
 https://docs.zerynth.com/latest/official/board.zerynth.doit_esp32/docs/index.html - LED on pin 2<br>
 https://docs.espressif.com/projects/esp-idf/en/latest/get-started/get-started-pico-kit.html - No user LED on board<br>
 https://www.st.com/en/evaluation-tools/stm32f4discovery.html - SD on Software SPI mode (mounted on EB-STM32F4DISCOVERY-LCD)<br>
-https://www.adafruit.com/product/4064
+https://www.adafruit.com/product/4064<br>
+https://github.com/SmartArduino/SZDOITWiKi/wiki/ESP8266---ESPduino-32<br>
+
+I have seen comments of people being able to run it on the Nucleo F401re, Nucleo F411 and a japanese board called GR-SAKURA.
 
 ## Extra software needed
 
@@ -211,6 +221,7 @@ The STM32 build uses the slower SPI mode for accessing the SD card.<br>
 I dedicate this software to:<br>
 * *Krzysztof Kliś* -  For writing the Arduino hardware interface and helping with debugging/testing.<br>
 * *Yeti* - For being an awesome agitator since RunCPM went on GitHub.<br>
+* *Wayne Hortensius* - For going deep into the code and bringing even more CP/M 2.2 compatibility to disk routines.<br>
 * All the other folks who are actively helping with finding/fixing bugs and issues on Github - thanks guys.<br>
 
 I dedicate it also to the memory of some awesome people who unfortunately are not among us anymore:<br>
