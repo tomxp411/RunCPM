@@ -288,7 +288,7 @@ void _Bios(void) {
 		SET_HIGH_REGISTER(AF, _chready());
 		break;
 	case 0x09:				// 3 - CONIN - Console input
-		SET_HIGH_REGISTER(AF, _getch());
+		SET_HIGH_REGISTER(AF, _getchw());
 #ifdef DEBUG
 		if (HIGH_REGISTER(AF) == 4)
 			Debug = 1;
@@ -378,7 +378,8 @@ void _Bdos(void) {
 		Returns: A=Char
 		*/
 	case 1:
-		HL = _getche();
+		HL = _getchNB();
+		_putcon(HL);
 #ifdef DEBUG
 		if (HL == 4)
 			Debug = 1;
@@ -488,7 +489,7 @@ void _Bdos(void) {
 		count = 0;
 		while (c)	// Very simplistic line input
 		{
-			chr = _getch();
+			chr = _getchw();
 			if (chr == 3 && count == 0) {						// ^C
 				_puts("^C");
 				Status = 2;

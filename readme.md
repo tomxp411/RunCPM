@@ -1,5 +1,13 @@
 # RunCPM - Z80 CP/M 2.2 emulator
 
+## Updates
+
+This fork of RunCPM is changed from the original. I am in the process of adding a serial port console, to allow
+the system to be operated remotely via a serial port or network modem. See **Serial console support** below for more
+information. 
+
+## About
+
 RunCPM is an application which can execute vintage CP/M 8 bits programs on many modern platforms, like Windows, Mac OS X, Linux, FreeBSD, MS-DOS, Arduino DUE and variants, like the Teensy or ESP32. It can be built both on 32 and 64 bits host environments and should be easily portable to other platforms.<br>
 RunCPM is fully written in C and in a modular way, so porting to other platforms should be only a matter of writing an abstraction layer file for it. No modification to the main code modules should be necessary.
 
@@ -146,6 +154,16 @@ The possible values for **reg** on those functions are:<br>
 The disk A.ZIP contains an example script called LUAINFO.LUA, with the same functionality of INFO.COM, which provides information about RunCPM.
 
 Caveat: Lua scripts must have a comment (--) on their last line, to prevent issues with the CP/M ^Z end-of-file character when the scripts are created with CP/M text editors. The comment on the last line comments out the CP/M EOF (^Z) character and prevents Lua interpreter errors.
+
+## Serial console support
+
+On desktop systems, you can use a serial port as the console for RunCPM. This can be a physical serial port or a virtual port. This is currently only available on Windows hosts. 
+
+To enable serial console support, edit global.h and un-comment `#define PC_SERIAL`. Edit the port name and baud rate to match. 
+
+To connect using another terminal program on the same PC, use a virtual null modem, like Com0Com. You can also use TcpSer to act as a terminal server for network connections.
+Make sure to append Append [auto answer, no messages, quiet mode] to the command line to prevent RING and CONNECT messages from causing problems with your applications.
+
 
 ## Limitations / Misbehaviors
 

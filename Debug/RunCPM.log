@@ -1,0 +1,7 @@
+﻿  main.c
+C:\Projects\RunCPM\RunCPM\console.h(23,24): warning C4244: 'return': conversion from 'DWORD' to 'uint8', possible loss of data
+C:\Projects\RunCPM\RunCPM\console.h(88,50): warning C4047: 'function': 'LPDWORD' differs in levels of indirection from 'DWORD'
+C:\Projects\RunCPM\RunCPM\console.h(88,50): warning C4024: 'WriteFile': different types for formal and actual parameter 4
+C:\Projects\RunCPM\RunCPM\main.c(84,1): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdlib.h(1323): message : see declaration of 'itoa'
+  RunCPM.vcxproj -> C:\Projects\RunCPM\Debug\RunCPM.exe

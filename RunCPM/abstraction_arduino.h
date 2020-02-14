@@ -484,13 +484,13 @@ int _kbhit(void) {
 	return(Serial.available());
 }
 
-uint8 _getch(void) {
+uint8 _getchw(void) {
 	while (!Serial.available());
 	return(Serial.read());
 }
 
 uint8 _getche(void) {
-	uint8 ch = _getch();
+	uint8 ch = _getchw();
 	Serial.write(ch);
 	return(ch);
 }

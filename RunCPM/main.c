@@ -74,6 +74,20 @@ int main(int argc, char* argv[]) {
 	_puthex16(CCPaddr);
 	_puts("\r\n");
 
+#ifdef PC_SERIAL
+	if (PortOpen)
+	{
+		_puts("Using serial port ");
+		_puts(PC_PORT_NAME);
+
+		char strBaud[16];
+		itoa(PC_BAUD, strBaud, 10);
+		_puts(" at ");
+		_puts(strBaud);
+		_puts("bps.\r\n");
+	}
+#endif
+
 	while (TRUE) {
 		_puts(CCPHEAD);
 		_PatchCPM();	// Patches the CP/M entry points and other things in

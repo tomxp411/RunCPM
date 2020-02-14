@@ -59,7 +59,7 @@ int _kbhit(void) {
 	return kbhit();
 }
 
-unsigned char _getch(void) {
+unsigned char _getchw(void) {
 	return getch();
 }
 

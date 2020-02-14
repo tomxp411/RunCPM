@@ -477,6 +477,68 @@ uint8 _RunLuaScript(char* filename) {
 }
 #endif
 
+/* PC Serial Console */
+/* Tom Wilson wilsontp@gmail.com */
+/*===============================================================================*/
+BOOL PortOpen = FALSE;
+HANDLE portHandle = NULL;
+void _initSerial(void)
+{
+	portHandle = CreateFile(PC_PORT_NAME,
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		0, // do not use overlapped I/O
+		NULL);
+
+	if (portHandle == INVALID_HANDLE_VALUE)
+		printf("Error opening serial port %s at %dbps\r\n", PC_PORT_NAME, PC_BAUD);
+	else
+	{
+		printf("Using serial port %s at %dbps\r\n", PC_PORT_NAME, PC_BAUD);
+		PortOpen = TRUE;
+
+		DCB parms = { 0 }; 
+		parms.DCBlength = sizeof(parms);
+		if (GetCommState(portHandle, &parms))
+		{
+			printf("Setting port parameters\r\n");
+
+			parms.BaudRate = PC_BAUD;
+			// Forcing n,8,1, or XMODEM won't work for file transfers. 
+			// the remote terminal can be configured for 7,e,1
+			// or can throw away bit 7. 
+			parms.ByteSize = 8;
+			parms.StopBits = ONESTOPBIT;
+			parms.Parity = NOPARITY;
+
+			printf("Setting timeouts.\r\n");
+			COMMTIMEOUTS timeouts = { 0 };
+			timeouts.ReadIntervalTimeout = 50; // in milliseconds
+			timeouts.ReadTotalTimeoutConstant = 50; // in milliseconds
+			timeouts.ReadTotalTimeoutMultiplier = 10; // in milliseconds
+			timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
+			timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
+			printf("Setting timeouts complete.\r\n");
+
+			if (SetCommState(portHandle, &parms))
+				printf("Serial port paramters successfully updated.\r\n");
+			else
+				printf("Paramter update failed.\r\n");
+		}
+	}
+	printf("Serial port init complete.\r\n");
+}
+
+void _closeSerial(void)
+{
+	printf("Closing serial port.\r\n");
+	CloseHandle(portHandle);
+}
+/* end PC Serial Console*/
+
+
 /* Console abstraction functions */
 /*===============================================================================*/
 DWORD cOutMode; // Stores initial console mode for the std output
@@ -493,6 +555,11 @@ BOOL _signal_handler(DWORD signal) {
 }
 
 void _console_init(void) {
+
+#ifdef PC_SERIAL
+	_initSerial();
+#endif
+
 	HANDLE hOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE hInHandle = GetStdHandle(STD_INPUT_HANDLE);
 
@@ -515,6 +582,11 @@ void _console_reset(void) {
 	SetConsoleMode(hOutHandle, cOutMode);
 	SetConsoleMode(hInHandle, cInMode);
 	SetConsoleTitle(cTitle);
+
+#ifdef PC_SERIAL
+	_closeSerial();
+#endif
+
 }
 
 /* Implemented by conio.h

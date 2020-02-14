@@ -19,15 +19,15 @@
 //#define iDEBUG		// Instruction debugger (PC only, for development)
 
 /* RunCPM version for the greeting header */
-#define VERSION	"3.9"
-#define VersionBCD 0x39
+#define VERSION	"3.10t"
+#define VersionBCD 0x3A
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
 /* Definition of which CCP to use (must define only one) */
-//#define CCP_INTERNAL	// If this is defined, an internal CCP will emulated
-#define CCP_DR
+#define CCP_INTERNAL	// If this is defined, an internal CCP will emulated
+//#define CCP_DR
 //#define CCP_CCPZ
 //#define CCP_ZCPR2
 //#define CCP_ZCPR3
@@ -92,8 +92,15 @@
 						// The default behavior of DRI's CP/M 2.2 was to have $$$.SUB created on the current drive/user while looking for it
 						// on drive A: current user, which made it complicated to run SUBMITs when not logged to drive A: user 0
 
-/* Some environment and type definitions */
+/* Serial port definitions (for desktop version) */
+#ifdef WIN32
+#define PC_SERIAL 
+//#define PC_PORT_NAME "\\\\.\\COM3"
+#define PC_PORT_NAME "COM3"
+#define PC_BAUD 19200
+#endif
 
+/* Some environment and type definitions */
 #ifndef TRUE
 #define FALSE 0
 #define TRUE 1
