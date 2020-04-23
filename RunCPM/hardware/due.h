@@ -1,7 +1,8 @@
 #ifndef DUE_H
 #define DUE_H
 
-SdFatEX SD;
+//SdFatEX SD;
+SdFat SD;
 #define SDINIT 4
 #define LED 13
 #define LEDinv 0

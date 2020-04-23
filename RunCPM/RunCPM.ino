@@ -12,7 +12,8 @@
 
 // Board definitions go into the "hardware" folder
 // Choose/change a file from there
-#include "hardware/teensy.h"
+//#include "hardware/teensy.h"
+#include "hardware/due.h"
 
 // Delays for LED blinking
 #define sDELAY 50
@@ -82,10 +83,14 @@ void setup(void) {
 #elif defined board_teensy40 
   _puts("Initializing Teensy 4.0 SD card.\r\n");
   if (SD.begin(SDINIT, SD_SCK_MHZ(25))) {
+#elif defined board_due
+  _puts("Initializing Arduino Due SD card.\r\n");
+    if (SD.begin(22, SD_SCK_MHZ(25))) {
 #else
   _puts("Initializing SD card.\r\n");
   if (SD.begin(SDINIT)) {
 #endif
+
     if (VersionCCP >= 0x10 || SD.exists(CCPname)) {
       while (true) {
         _puts(CCPHEAD);
@@ -119,6 +124,7 @@ void setup(void) {
     }
   } else {
     _puts("Unable to initialize SD card.\r\nCPU halted.\r\n");
+    Serial.print(" (card error: 0x"); Serial.print(SD.card()->errorCode(), HEX); Serial.println(")");
   }
 }
 
