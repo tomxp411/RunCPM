@@ -15,7 +15,7 @@ RunCPM builds on Visual Studio 2013 or later. Posix builds use GCC/LLVM. It can 
 ## Arduino / Teensy / ESP32 / STM32
 
 RunCPM builds on Arduino IDE 1.8.7 or later.<br>
-RunCPM so far runs on the Arduino DUE, on the Teensy 3.5 and 3.6, on the ESP32 and on some STM32, as it requires a fair amount of RAM to run (64K used to be a lot back in those days).<br>
+RunCPM so far runs on the Arduino DUE, on the Teensy 3.5, 3.6 and 4.0, on the ESP32 and on some STM32, as it requires a fair amount of RAM to run (64K used to be a lot back in those days).<br>
 If using the Arduino DUE, RunCPM also needs a SD (or microSD) card shield to place the CP/M files in. The Teensy has an on-board microSD adapter. Some ESP32 and STM32 boards may need external SD card adapters.
 
 Arduino digital and analog read/write support was added by Krzysztof Kliś via extra non-standard BDOS calls (see the bottom of cpm.h file for details).
@@ -155,6 +155,8 @@ They are still provided on the master disk A.ZIP just to maintain compatibility 
 
 Other CP/M flavors like CP/M 3 or CP/M Plus are not supported as of yet, as the emulated BDOS of RunCPM is specific for CP/M 2.2.
 
+The IN/OUT instructions are used to implement the communication between the soft CPU BIOS and BDOS and the equivalent RunCPM functions, therefore these instructions are unusable for any other purpose.
+
 The "video monitor" is assumed to be ANSI/VT100 emulation, as this is the standard for DOS/Windows/Linux distributions. So CP/M applications which are hardcoded for other terminals won't build their screens correctly.<br>
 When using a serial terminal emulator, make sure it sends either CR or LF when you press enter, not both (CR+LF), or else it will break the DIR listing on DR's CCP. This is standard CP/M 2.2 behavior.
 
@@ -166,7 +168,7 @@ Some applications, like hi-tech C for example, will try to access user areas hig
 
 ## Online contact/support
 
-https://discord.gg/7aQAGG - I have created this discord channel to be able to (eventually) meet people in real time and talk about RunCPM. Feel free to join.
+https://discord.gg/WTTWVZ6 - I have created this discord channel to be able to (eventually) meet people in real time and talk about RunCPM. Feel free to join.
 
 ## References
 
@@ -195,7 +197,8 @@ https://www.st.com/en/evaluation-tools/stm32f4discovery.html - SD on Software SP
 https://www.adafruit.com/product/4064<br>
 https://github.com/SmartArduino/SZDOITWiKi/wiki/ESP8266---ESPduino-32<br>
 
-I have seen comments of people being able to run it on the Nucleo F401re, Nucleo F411 and a japanese board called GR-SAKURA.
+I have seen reports of people being able to run it on the Nucleo F401re, Nucleo F411 and a japanese board called GR-SAKURA.
+It was also successfully built and ran on the Kindle Keyboard 3G.
 
 ## Extra software needed
 
