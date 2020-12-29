@@ -1,19 +1,12 @@
 #include "globals.h"
 
 #include <SPI.h>
-#include <SdFat.h>  // One SD library to rule them all - Greinman SdFat from Library Manager
 
-// SDCard/LED related definitions
-//
-//   SdFatSoftSpiEX and SdFatEX require changes to the following lines on SdFatConfig.h:
-//     #define ENABLE_EXTENDED_TRANSFER_CLASS (from 0 to 1 - around line 71)
-//     #define ENABLE_SOFTWARE_SPI_CLASS (from 0 to 1 - around line 87)
-//
+#include <SdFat.h>  // One SD library to rule them all - Greinman SdFat from Library Manager
 
 // Board definitions go into the "hardware" folder
 // Choose/change a file from there
-//#include "hardware/teensy.h"
-#include "hardware/due.h"
+#include "hardware/gc.h"
 
 // Delays for LED blinking
 #define sDELAY 50
@@ -64,7 +57,7 @@ void setup(void) {
   _clrscr();
   _puts("CP/M 2.2 Emulator v" VERSION " by Marcelo Dantas\r\n");
   _puts("Arduino read/write support by Krzysztof Klis\r\n");
-  _puts("      Build " __DATE__ " - " __TIME__ "\r\n");
+  _puts("      Built " __DATE__ " - " __TIME__ "\r\n");
   _puts("--------------------------------------------\r\n");
   _puts("CCP: " CCPname "    CCP Address: 0x");
   _puthex16(CCPaddr);
@@ -72,25 +65,12 @@ void setup(void) {
   _puts(BOARD);
   _puts("\r\n");
 
-#if defined board_agcm4
-  _puts("Initializing Grand Central SD card.\r\n");
-  if (SD.cardBegin(SDINIT, SD_SCK_MHZ(50))) {
-
-    if (!SD.fsBegin()) {
-      _puts("\nFile System initialization failed.\n");
-      return;
-    }
-#elif defined board_teensy40 
-  _puts("Initializing Teensy 4.0 SD card.\r\n");
-  if (SD.begin(SDINIT, SD_SCK_MHZ(25))) {
-#elif defined board_due
-  _puts("Initializing Arduino Due SD card.\r\n");
-    if (SD.begin(22, SD_SCK_MHZ(25))) {
-#else
+#if defined board_esp32
+  _puts("Initializing SPI.\r\n");
+  SPI.begin(SPIINIT);
+#endif
   _puts("Initializing SD card.\r\n");
   if (SD.begin(SDINIT)) {
-#endif
-
     if (VersionCCP >= 0x10 || SD.exists(CCPname)) {
       while (true) {
         _puts(CCPHEAD);
@@ -124,7 +104,6 @@ void setup(void) {
     }
   } else {
     _puts("Unable to initialize SD card.\r\nCPU halted.\r\n");
-    Serial.print(" (card error: 0x"); Serial.print(SD.card()->errorCode(), HEX); Serial.println(")");
   }
 }
 

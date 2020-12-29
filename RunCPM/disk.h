@@ -191,9 +191,9 @@ void _HostnameToFCBname(uint8* from, uint8* to) {
 // Creates a fake directory entry for the current dmaAddr FCB
 void _mockupDirEntry(void) {
 	CPM_DIRENTRY* DE = (CPM_DIRENTRY*)_RamSysAddr(dmaAddr);
-	uint8 blocks;
+	uint8 blocks, i;
 
-	for (uint8 i = 0; i < sizeof(CPM_DIRENTRY); ++i) {
+	for (i = 0; i < sizeof(CPM_DIRENTRY); ++i) {
 		_RamWrite(dmaAddr + i, 0x00); // zero out directory entry
 	}
 	_HostnameToFCB(dmaAddr, (uint8*)findNextDirName);
@@ -226,11 +226,11 @@ void _mockupDirEntry(void) {
 	}
 	// phoney up an appropriate number of allocation blocks
 	if (numAllocBlocks < 256) {
-		for (uint8 i = 0; i < blocks; ++i) {
+		for (i = 0; i < blocks; ++i) {
 			DE->al[i] = (uint8)firstFreeAllocBlock++;
 		}
 	} else {
-		for (uint8 i = 0; i < 2 * blocks; i += 2) {
+		for (i = 0; i < 2 * blocks; i += 2) {
 			DE->al[i] = firstFreeAllocBlock & 0xFF;
 			DE->al[i + 1] = firstFreeAllocBlock >> 8;
 			++firstFreeAllocBlock;
@@ -284,7 +284,8 @@ uint8 _OpenFile(uint16 fcbaddr) {
 			len = _FileSize(fcbaddr) / BlkSZ;	// Compute the len on the file in blocks
 
 			F->s1 = 0x00;
-			F->s2 = 0x00;
+			F->s2 = 0x80;	// set unmodified flag
+
 
 			F->rc = len > MaxRC ? MaxRC : (uint8)len;
 			for (i = 0; i < 16; ++i)	// Clean up AL
@@ -302,13 +303,17 @@ uint8 _CloseFile(uint16 fcbaddr) {
 	uint8 result = 0xff;
 
 	if (!_SelectDisk(F->dr)) {
-		if (!RW) {
-			_FCBtoHostname(fcbaddr, &filename[0]);
-			if (fcbaddr == BatchFCB)
-				_Truncate((char*)filename, F->rc);	// Truncate $$$.SUB to F->rc CP/M records so SUBMIT.COM can work
-			result = 0x00;
+		if (!(F->s2 & 0x80)) {					// if file is modified
+			if (!RW) {
+				_FCBtoHostname(fcbaddr, &filename[0]);
+				if (fcbaddr == BatchFCB)
+					_Truncate((char*)filename, F->rc);	// Truncate $$$.SUB to F->rc CP/M records so SUBMIT.COM can work
+				result = 0x00;
+			} else {
+				_error(errWRITEPROT);
+			}
 		} else {
-			_error(errWRITEPROT);
+			result = 0x00;
 		}
 	}
 	return(result);
@@ -326,7 +331,7 @@ uint8 _MakeFile(uint16 fcbaddr) {
 			if (_sys_makefile(&filename[0])) {
 				F->ex = 0x00;	// Makefile also initializes the FCB (file becomes "open")
 				F->s1 = 0x00;
-				F->s2 = 0x00;
+				F->s2 = 0x00;		// newly created files are already modified
 				F->rc = 0x00;
 				for (i = 0; i < 16; ++i)	// Clean up AL
 					F->al[i] = 0x00;
@@ -451,7 +456,7 @@ uint8 _ReadSeq(uint16 fcbaddr) {
 				F->ex = 0;
 				++F->s2;
 			}
-			if (F->s2 > MaxS2)
+			if ((F->s2 & 0x7F) > MaxS2)
 				result = 0xfe;	// (todo) not sure what to do 
 		}
 	}
@@ -472,6 +477,7 @@ uint8 _WriteSeq(uint16 fcbaddr) {
 			_FCBtoHostname(fcbaddr, &filename[0]);
 			result = _sys_writeseq(&filename[0], fpos);
 			if (!result) {	// Write succeeded, adjust FCB
+				F->s2 &= 0x7F;		// reset unmodified flag
 				++F->cr;
 				if (F->cr > MaxCR) {
 					F->cr = 1;
@@ -506,7 +512,11 @@ uint8 _ReadRand(uint16 fcbaddr) {
 			// adjust FCB unless error #6 (seek past 8MB - max CP/M file & disk size)
 			F->cr = record & 0x7F;
 			F->ex = (record >> 7) & 0x1f;
-			F->s2 = (record >> 12) & 0xff;
+			if (F->s2 & 0x80) {
+				F->s2 = ((record >> 12) & MaxS2) | 0x80;
+			} else {
+				F->s2 = (record >> 12) & MaxS2;
+			}
 		}
 	}
 	return(result);
@@ -527,7 +537,7 @@ uint8 _WriteRand(uint16 fcbaddr) {
 			if (!result) {	// Write succeeded, adjust FCB
 				F->cr = record & 0x7F;
 				F->ex = (record >> 7) & 0x1f;
-				F->s2 = (record >> 12) & 0xff;
+				F->s2 = (record >> 12) & MaxS2;	// resets unmodified flag
 			}
 		} else {
 			_error(errWRITEPROT);
@@ -558,7 +568,7 @@ uint8 _SetRandom(uint16 fcbaddr) {
 
 	int32 count = F->cr & 0x7f;
 	count += (F->ex & 0x1f) << 7;
-	count += F->s2 << 12;
+	count += (F->s2 & MaxS2) << 12;
 
 	F->r0 = count & 0xff;
 	F->r1 = (count >> 8) & 0xff;

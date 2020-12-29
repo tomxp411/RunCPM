@@ -1,6 +1,6 @@
 # RunCPM - Z80 CP/M 2.2 emulator
 
-RunCPM is an application which can execute vintage CP/M 8 bits programs on many modern platforms, like Windows, Mac OS X, Linux, FreeBSD, MS-DOS, Arduino DUE and variants, like the Teensy or ESP32. It can be built both on 32 and 64 bits host environments and should be easily portable to other platforms.<br>
+RunCPM is an application which can execute vintage CP/M 8 bits programs on many modern platforms, like Windows, Mac OS X, Linux, FreeBSD, Arduino DUE and variants, like the Teensy or ESP32. It can be built both on 32 and 64 bits host environments and should be easily portable to other platforms.<br>
 RunCPM is fully written in C and in a modular way, so porting to other platforms should be only a matter of writing an abstraction layer file for it. No modification to the main code modules should be necessary.
 
 If you miss using powerful programs like Wordstar, dBaseII, mBasic and others, then RunCPM is for you. It is very stable and fun to use.<br>
@@ -10,7 +10,7 @@ RunCPM was written to serve as a test environment when I was restoring the only 
 Making changes, recompiling MicroMumps and loading it onto a regular CP/M emulator via a disk image every time I moved a bit forward on the restoration was becoming too time consuming. So I decided to write something that would allow me to run the executable right away after making any modifications.<br>
 RunCPM then evolved as more and more CP/M applications were added to its compatibility list.
 
-RunCPM builds on Visual Studio 2013 or later. Posix builds use GCC/LLVM. It can also be built on the Arduino IDE and even on DJGPP for DOS. It can be built also on Cygwin (posix) and Mingw. Makefiles are provided with the distribution.
+RunCPM builds on Visual Studio 2013 or later. Posix builds use GCC/LLVM. It can also be built on the Arduino IDE. It can be built also on Cygwin (posix) and Mingw. Makefiles are provided with the distribution.
 
 ## Arduino / Teensy / ESP32 / STM32
 
@@ -25,9 +25,19 @@ LED blink codes: Arduino/Teensy/ESP32/STM32 user LED will blink fast when RunCPM
 RunCPM needs A LOT of RAM and Flash memory by Arduino standards, so it will NOT run on other Arduinos than the DUE (not the Duemilanove) as they will not have enough of those.
 It is theoretically possible to run it on an Arduino which has enough Flash (at least 96K) by adding external RAM to it via some shield, but this is untested, probably slow and would require an entirely different port of RunCPM code.
 
-When using Arduino boards, the serial speed as well as other parameters, like LED pin and SD Card pins may be set by editing the RunCPM.ino sketch. The default serial speed is 9600 for compatibility with vintage terminals.
+When using Arduino boards, the serial speed as well as other parameters, may be set by editing the RunCPM.ino sketch. The default serial speed is 9600 for compatibility with vintage terminals.<br>
 
 If building for the Teensy, ESP32 and STM32, please read the entire document, as there is more information below.
+
+You will also need to set the correct board definition. To do this, look at line 9 in RunCPM.ino: `#include "hardware/due.h"`
+
+In the Hardware folder, you will find additional board defintions. If your board is not listed, copy the board that's closest to yours
+and update the SDINIT macro with your SD card reader's CS pin. If your reader will not operate at 50MHz (many won't), you can change SDMHZ
+to the correct speed for your card. 25 has been known to work with SD card readers on the Due, and you may need to set this slower for 
+certain cards or readers.
+
+Also, read **SdFat library change** below.
+
 
 ## Experimental Platforms
 
@@ -38,10 +48,9 @@ Altera/Intel DE1 Cyclone II FPGA (NiosII).
 
 RunCPM builds natively on Visual Studio.
 
-For building on other systems run "make yyy", where "yyy" is:
+For building on other systems run `make yyy build`, where "yyy" is:
 
-* **dos** - when building with DJGPP under MS-DOS,
-* **macosx** - Mac OS X
+* **macosx** - Mac OS X,
 * **mingw** - when building with MinGW under Windows,
 * **posix** - when building under Linux, FreeBSD etc,
 * **tdm** - when building with TDM-GCC under Windows.
@@ -74,7 +83,7 @@ All the letters for folders/subfolders and file names should be kept in uppercas
 CP/M only supported 16 disk drives: A: to P:, so creating other letters above P won't work, same goes for user areas above 15 (F).
 
 **Available CCPs :**<br>
-RunCPM can run on its internal CCP (beta) or using binary CCPs from real CP/M computers. A few CCPs are provided:
+RunCPM can run on its internal CCP or using binary CCPs from real CP/M computers. A few CCPs are provided:
 
 * **CCP-DR** - Is the original CCP from Digital Research.<br>
 * **CCP-CCPZ** - Is the Z80 CCP from RLC and others.<br>
@@ -166,6 +175,20 @@ Lua scripting is not supported on platforms other than Windows, Linux and MacOS.
 
 Some applications, like hi-tech C for example, will try to access user areas higher than 15 to verify if they are running on a different CP/M flavor than 2.2. This causes the generation of user areas with letters higher than F. This is an expected behavior and won't be "fixed".
 
+There is a hardware-design-error on some Clones and some Revisions of the original
+Arduino Due which prevents the correct use of the RX0-Pin (serial TTL-Port Receive-Pin)
+while not using the USB-Programming-Port for accessing RunCPM on the Arduino Due.
+The solution is to use the serial port 1 = RX1 and TX1
+For that you have to replace all occurrences of "Serial." with "Serial1."
+https://github.com/MockbaTheBorg/RunCPM/issues/117 - @Guidol70
+
+## CP/M Software
+
+I have shared my entire CP/M software library [here!](https://drive.google.com/drive/folders/11WIu8rD_7pIDaET7dqTeA73CvX0jkxz2?usp=sharing)<br>
+Please, if you have newer/cleaner (closer to the original distribution) versions of the software found here, please consider sending it over so I can update.<br>
+Same goes for user guides and other useful documentation.<br>
+My intent is to keep here clean copies of useful software which has been tested and proven to work fine with RunCPM.
+
 ## Online contact/support
 
 https://discord.gg/WTTWVZ6 - I have created this discord channel to be able to (eventually) meet people in real time and talk about RunCPM. Feel free to join.
@@ -183,12 +206,15 @@ https://learn.adafruit.com/z80-cpm-emulator-for-the-samd51-grand-central<br>
 https://forum.armbian.com/topic/8569-runcpm-on-armbian-cpm-weekend-fun/<br>
 https://blog.hackster.io/z80-cp-m-emulator-runs-on-adafruits-new-grand-central-dev-board-6a28ad73dfbc<br>
 https://ht-deko.com/arduino/runcpm.html - in Japanese<br>
+https://www.instructables.com/Retro-CPM-Stand-Alone-Emulator/<br>
 
 ## RunCPM compatible boards tested so far
 
 https://store.arduino.cc/usa/arduino-due<br>
 https://www.pjrc.com/store/teensy35.html<br>
 https://www.pjrc.com/store/teensy36.html<br>
+https://www.pjrc.com/store/teensy40.html - With TEENSY4_AUDIO board<br>
+https://www.pjrc.com/store/teensy41.html<br>
 https://github.com/LilyGO/ESP32-TTGO-T1 - LED on pin 22<br>
 https://wiki.wemos.cc/products:lolin32:lolin32_pro - LED on pin 5 (inverted)<br>
 https://docs.zerynth.com/latest/official/board.zerynth.doit_esp32/docs/index.html - LED on pin 2<br>
@@ -200,24 +226,40 @@ https://github.com/SmartArduino/SZDOITWiKi/wiki/ESP8266---ESPduino-32<br>
 I have seen reports of people being able to run it on the Nucleo F401re, Nucleo F411 and a japanese board called GR-SAKURA.
 It was also successfully built and ran on the Kindle Keyboard 3G.
 
-## Extra software needed
+## Building dependencies
 
 For the Arduino DUE, support for it needs to be added through the board manager.<br>
 For the Teensy follow the instructions from here: https://www.pjrc.com/teensy/td_download.html<br>
 For the ESP32 follow the instructions from here: https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/<br>
 For the STM32 follow the instructions from here: https://github.com/stm32duino/Arduino_Core_STM32<br>
-All boards now use the SdFat library, from here: https://github.com/greiman/SdFat/<br>
+All boards now use the SdFat 2.x library, from here: https://github.com/greiman/SdFat/<br>
 All Arduino libraries can be found here: https://www.arduinolibraries.info/
+
+If you get an error locating BufferedPrint.h, you may need to install the **StreamLib** library. You can do this from the library manager in 
+the Arduino IDE. 
+
+## SdFat library change
+
+If you get a <b>'File' has no member named 'dirEntry'</b> error, then a modification is needed on the SdFat Library SdFatConfig.h file (line 78 as of version 2.0.2) changing:<br>
+```#define SDFAT_FILE_TYPE 3```<br>
+to<br>
+```#define SDFAT_FILE_TYPE 1```<br>
+As file type 1 is required for most of the RunCPM ports.
+
+To find your libraries folder, open the Preferences in Arduino IDE and look at the Sketchbook location field. 
+
+On Windows systems, SdFatConfig.h will be in Documents\Arduino\libraries\SdFat\src
+
 
 ## ESP32 Limitations
 
 The ESP32 build doesn't yet support the analogWrite BDOS call.<br>
 The ESP32 build may require additional changes to the code to support different ESP32 boards.<br>
-The ESP32 build uses the slower SPI mode for accessing the SD card.<br>
+The ESP32 build uses SPI mode for accessing the SD card.<br>
 
 ## STM32 Limitations
 
-The STM32 build uses the slower SPI mode for accessing the SD card.<br>
+The STM32 build uses Soft SPI mode for accessing the SD card.<br>
 
 ## Dedications
 
@@ -234,5 +276,9 @@ I dedicate it also to the memory of some awesome people who unfortunately are no
 * *Mr. Tom L. Burnett* - For helping me with testing/debugging many different CP/M 2.2 applications on RunCPM.<br>
 May the computers in heaven be all 8-bit.<br>
 
+## Donations
+
+Last but not least, if you feel like make a donation to help the project moving forward, feel free to do so by clicking [here!](http://paypal.me/MockbaTheBorg)<br>
+These will help me source more hardware and other things that assist on the RunCPM development.
 <hr>
 ###### The original copy of this readme file was written on WordStar 3.3 under RunCPM
